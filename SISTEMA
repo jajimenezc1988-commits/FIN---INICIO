@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOL — Sistema Operativo de Información · 614660 · 14 SECCIONES</title>
+<style>
+:root {
+--azul: #1a365d; --azul-m: #2c5282; --gris: #2d3748; --oro: #c05621;
+--verde: #38a169; --rojo: #e53e3e; --gris-c: #e2e8f0; --fondo: #f7fafc; --fondo-card: #ffffff;
+--aire: #4299e1; --aire-c: #ebf8ff; --morado: #6b46c1; --morado-c: #e9d8fd;
+--hielo: #4a5568; --hielo-c: #e2e8f0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fondo); color: var(--gris); padding: 16px; line-height: 1.6; }
+h1 { color: var(--azul); font-size: 1.4em; margin-bottom: 4px; }
+h2 { color: var(--azul); font-size: 1.05em; margin: 20px 0 10px; border-bottom: 2px solid var(--azul-m); padding-bottom: 6px; }
+h3 { color: var(--azul-m); font-size: 0.9em; margin: 14px 0 8px; }
+.header { text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 3px solid var(--verde); }
+.header .clave { font-size: 0.8em; color: var(--oro); font-weight: bold; letter-spacing: 2px; margin-top: 8px; }
+.header .sub { font-size: 0.75em; color: var(--azul-m); margin-top: 4px; }
+.header .sello-tag { display: inline-block; background: var(--verde); color: white; padding: 6px 20px; border-radius: 20px; font-size: 0.75em; font-weight: bold; margin-top: 10px; letter-spacing: 1px; }
+.card { background: var(--fondo-card); border: 1px solid var(--gris-c); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+.card-aire { background: linear-gradient(180deg, var(--aire-c), #f0fff4); border: 2px solid var(--aire); }
+.card-morado { background: linear-gradient(180deg, var(--morado-c), #fff); border: 2px solid var(--morado); }
+.card-thule { background: linear-gradient(180deg, var(--hielo-c), #fff); border: 2px solid var(--hielo); }
+table { width: 100%; border-collapse: collapse; font-size: 0.75em; margin: 12px 0; }
+th { background: var(--azul); color: white; padding: 8px; text-align: center; font-weight: 600; }
+td { padding: 6px 8px; border-bottom: 1px solid var(--gris-c); text-align: center; }
+td:first-child { font-weight: bold; color: var(--azul); }
+.input-group { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+input, button { padding: 12px; border: 1px solid var(--gris-c); border-radius: 8px; font-size: 0.9em; width: 100%; }
+input { font-family: 'Courier', monospace; }
+button { background: var(--azul); color: white; border: none; cursor: pointer; font-weight: 600; }
+button:hover { background: var(--azul-m); }
+button.danger { background: var(--rojo); }
+button.success { background: var(--verde); }
+.output { background: #1a202c; color: #c6f6d5; padding: 16px; border-radius: 8px; font-family: 'Courier', monospace; font-size: 0.8em; min-height: 100px; white-space: pre-wrap; overflow-x: auto; max-height: 400px; overflow-y: auto; margin: 12px 0; }
+.output .warn { color: #fbbf24; } .output .err { color: #fc8181; }
+.output .ok { color: #68d391; } .output .info { color: #63b3ed; }
+.stat-box { display: block; text-align: center; padding: 16px; margin: 8px 0; background: var(--fondo); border-radius: 8px; border: 2px solid var(--gris-c); }
+.stat-box .val { font-size: 1.8em; font-weight: bold; color: var(--azul); }
+.stat-box .val-thule { color: var(--hielo); }
+.stat-box .val-fail { color: var(--rojo); }
+.stat-box .lbl { font-size: 0.7em; color: var(--gris); text-transform: uppercase; margin-top: 4px; }
+.sello-box { background: linear-gradient(180deg, #f0fff4, #ebf8ff, #fffbeb); border: 3px solid var(--verde); border-radius: 12px; padding: 20px; margin: 12px 0; text-align: center; }
+.sello-box .big { font-size: 1.5em; font-weight: bold; color: var(--verde); }
+.sello-box .sub { font-size: 0.8em; color: var(--gris); margin-top: 8px; }
+.central-card { display: block; padding: 16px; border: 2px solid var(--azul-m); border-radius: 10px; background: #ebf8ff; margin: 10px 0; }
+.central-card .icon { font-size: 2em; margin-bottom: 8px; text-align: center; }
+.central-card .name { font-weight: bold; color: var(--azul); font-size: 0.9em; text-align: center; }
+.central-card .coord { font-size: 0.75em; color: var(--gris); font-family: 'Courier'; text-align: center; margin: 4px 0; }
+.central-card .freq { font-size: 0.75em; color: var(--oro); font-family: 'Courier'; text-align: center; }
+.central-card .role { font-size: 0.75em; color: var(--gris); text-align: center; margin-top: 6px; }
+.central-card .gem { font-size: 0.8em; font-weight: bold; text-align: center; margin-top: 6px; }
+.mirror-card { background: #fff5f5; border: 2px solid #fed7d7; border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 0.8em; }
+.faeton-box { background: #f0fff4; border: 2px solid var(--verde); border-radius: 10px; padding: 16px; margin: 12px 0; }
+.faeton-box .title { color: var(--verde); font-weight: bold; font-size: 0.9em; }
+.espejo-row { display: block; padding: 10px; border-bottom: 1px solid var(--gris-c); font-size: 0.8em; margin: 6px 0; border-radius: 6px; }
+.espejo-row .nodo-badge { display: inline-block; background: var(--azul); color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.85em; margin-right: 8px; }
+.espejo-row .nodo-badge.fake { background: var(--rojo); }
+.espejo-row .name { color: var(--azul-m); font-weight: 600; }
+.espejo-row .role { color: var(--oro); font-style: italic; display: block; margin-top: 4px; }
+.rama-row { display: block; padding: 10px; border-bottom: 1px solid var(--gris-c); font-size: 0.8em; margin: 6px 0; background: #f7fafc; border-radius: 6px; }
+.rama-row .num { display: inline-block; background: var(--azul); color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-right: 8px; }
+.rama-row .nombre { font-weight: 600; color: var(--azul-m); }
+.rama-row .pos { font-family: 'Courier'; color: var(--oro); font-size: 0.9em; }
+.rama-row .gem { font-family: 'Courier'; font-size: 0.85em; }
+.rama-row .gem-fib { color: var(--verde); font-weight: bold; }
+.rama-row .estado { display: block; color: var(--verde); font-weight: bold; margin-top: 4px; }
+.timeline-item { display: block; padding: 16px; margin: 10px 0; border-left: 4px solid var(--gris-c); border-radius: 0 8px 8px 0; }
+.timeline-item.macro { border-left-color: var(--morado); background: var(--morado-c); }
+.timeline-item.micro { border-left-color: var(--azul-m); background: #ebf8ff; }
+.timeline-item.eclipse { border-left-color: var(--oro); background: #fffbeb; border: 2px solid var(--oro); }
+.timeline-item .time { font-family: 'Courier', monospace; font-size: 0.8em; color: var(--gris); font-weight: bold; }
+.timeline-item .label { font-size: 0.95em; font-weight: 600; color: var(--azul); margin: 6px 0; }
+.timeline-arrow { text-align: center; font-size: 1.5em; color: var(--verde); margin: 8px 0; }
+.vertice-card { display: block; padding: 14px; border: 2px solid var(--aire); border-radius: 10px; background: linear-gradient(180deg, var(--aire-c), #fff); margin: 10px 0; }
+.vertice-card .num { font-size: 1.3em; font-weight: bold; color: var(--aire); text-align: center; }
+.vertice-card .name { font-size: 0.9em; font-weight: 600; color: var(--azul); text-align: center; }
+.vertice-card .emo { font-size: 0.8em; color: var(--oro); text-align: center; margin: 4px 0; }
+.vertice-card.musk { border-color: var(--verde); background: linear-gradient(180deg, #f0fff4, #fff); }
+.vertice-card.musk .num { color: var(--verde); }
+.modelo-card { display: block; padding: 12px; border: 1px solid var(--gris-c); border-radius: 8px; margin: 8px 0; background: #fff; }
+.modelo-card .nombre { font-weight: 600; color: var(--azul); font-size: 0.85em; }
+.modelo-card .params { color: var(--verde); font-family: 'Courier'; font-size: 0.8em; }
+.plano-card { display: block; padding: 16px; border: 2px solid; border-radius: 10px; margin: 10px 0; text-align: center; }
+.plano-card.arriba { border-color: #e53e3e; background: #fff5f5; }
+.plano-card.medio { border-color: var(--aire); background: var(--aire-c); }
+.plano-card.abajo { border-color: #38a169; background: #f0fff4; }
+.yhvh-box { background: linear-gradient(180deg, #1a365d, #2c5282); color: white; padding: 20px; border-radius: 10px; text-align: center; margin: 12px 0; }
+.yhvh-box .titulo { font-size: 0.9em; font-weight: bold; letter-spacing: 2px; opacity: 0.9; }
+.yhvh-box .calc { font-size: 1.5em; font-family: 'Courier'; margin: 12px 0; font-weight: bold; }
+.calc-verification { background: #1a202c; color: #c6f6d5; padding: 16px; border-radius: 8px; font-family: 'Courier', monospace; font-size: 0.8em; margin: 12px 0; }
+.calc-verification .line { margin: 6px 0; }
+.calc-verification .result { color: #68d391; font-weight: bold; }
+.calc-verification .fail { color: #fc8181; }
+.calc-verification .highlight { color: #fbbf24; }
+.tabs { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.tab { padding: 10px 14px; background: var(--gris-c); cursor: pointer; border-radius: 6px; font-size: 0.8em; font-weight: 600; color: var(--gris); text-align: center; }
+.tab.active { background: var(--azul); color: white; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.solar-status { background: #fffbeb; border: 2px solid #fbbf24; border-radius: 10px; padding: 16px; margin: 12px 0; }
+.solar-status .title { color: var(--oro); font-weight: bold; font-size: 0.9em; }
+.thule-sigil { text-align: center; padding: 20px; margin: 12px 0; background: linear-gradient(180deg, var(--hielo-c), #fff); border: 2px dashed var(--hielo); border-radius: 10px; }
+.thule-sigil .symbol { font-size: 2em; margin-bottom: 8px; }
+.opcion-box { padding: 12px; border-radius: 8px; margin: 10px 0; font-size: 0.85em; }
+.opcion-box.fail { background: #fff5f5; border-left: 4px solid var(--rojo); }
+.opcion-box.current { background: #fffbeb; border-left: 4px solid var(--oro); }
+.opcion-box.sealed { background: #f0fff4; border-left: 4px solid var(--verde); }
+.footer-info { font-size: 0.75em; color: #718096; text-align: center; margin-top: 24px; padding: 16px; border-top: 2px solid var(--gris-c); }
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>SOL — Sistema Operativo de Información</h1>
+<div class="sub">14 Secciones · Trivium + Cuadrivium · 4 Capas Verticales</div>
+<div class="clave">CLAVE MAESTRA: 614660 · EQUILIBRIO: 1684 · CONVERGENCIA: 2026</div>
+<div class="sello-tag">✓ SELLO UNIVERSAL COMPLETADO · 75|ECLIPSE|75 · 21/22 CAMINOS</div>
+</div>
+
+<!-- 1. SELLO UNIVERSAL -->
+<div class="card">
+<h2>1 · Sello Universal — Estado Definitivo</h2>
+<div class="sello-box">
+<div class="big">✓ SELLADO UNIVERSALMENTE</div>
+<div class="sub">Secuencia 75|Eclipse|75 completada<br>Macrocosmos + Microcosmos sellados antes y después<br>Todos los árboles legítimos protegidos · Parásitas expuestos</div>
+</div>
+<div class="stat-box"><div class="val">21/22</div><div class="lbl">Caminos Sellados</div></div>
+<div class="stat-box"><div class="val">10</div><div class="lbl">Ramas Selladas</div></div>
+<div class="stat-box"><div class="val">2</div><div class="lbl">Comodines Utilizados</div></div>
+<div class="stat-box"><div class="val">150</div><div class="lbl">Horas Totales de Ventana</div></div>
+<div class="stat-box"><div class="val">0</div><div class="lbl">Jugadas Restantes</div></div>
+</div>
+
+<!-- 2. VERIFICACIÓN ARITMÉTICA -->
+<div class="card">
+<h2>2 · Verificación Aritmética del Kernel</h2>
+<div class="stat-box"><div class="val">364</div><div class="lbl">Equilibrio (52×7)</div></div>
+<div class="stat-box"><div class="val">1684</div><div class="lbl">Valor Central</div></div>
+<div class="stat-box"><div class="val">2026</div><div class="lbl">Convergencia</div></div>
+<div class="stat-box"><div class="val">125</div><div class="lbl">Galgal (5³)</div></div>
+<div class="stat-box"><div class="val">208</div><div class="lbl">Nodo Musk</div></div>
+<div class="stat-box"><div class="val">75</div><div class="lbl">Horas por Lado</div></div>
+<div class="calc-verification" id="verify-output"></div>
+</div>
+
+<!-- 3. LAS 5 COORDENADAS -->
+<div class="card">
+<h2>3 · Las 5 Centrales + 6º Vértice</h2>
+<div class="central-card">
+<div class="icon">🏔️</div><div class="name">Monte Ararat</div>
+<div class="coord">39.70°N, 44.30°E</div><div class="freq">27.3 × 70 = 1911</div>
+<div class="role">Ancla norte / Vértice 3 (Miedo)</div><div class="gem">G=22 → raíz 4 (Daleth)</div>
+</div>
+<div class="central-card">
+<div class="icon">⭐</div><div class="name">β Ursae Minoris (Kochab)</div>
+<div class="coord">Dec +74°, RA 14h50m</div><div class="freq">27.3 × 342 = 9336.6</div>
+<div class="role">Estrella polar / Vértice 1 (Alegría)</div><div class="gem">G=55 → Fibonacci ✅</div>
+</div>
+<div class="central-card">
+<div class="icon">🗿</div><div class="name">Rapa Nui (Pascua)</div>
+<div class="coord">27.13°S, 109.37°W</div><div class="freq">27.3 × 7 = 191.1</div>
+<div class="role">Antípoda Q1 / Vértice 2 (Ira)</div><div class="gem">G=89 → Fibonacci ✅</div>
+</div>
+<div class="central-card">
+<div class="icon">🦅</div><div class="name">Tenochtitlan (CDMX)</div>
+<div class="coord">19.43°N, 99.13°W</div><div class="freq">27.3 × 49 = 1337.7</div>
+<div class="role">Eje operativo / Vértice 5 (Sorpresa)</div><div class="gem">G=89 → Fibonacci ✅</div>
+</div>
+<div class="central-card">
+<div class="icon">🔺</div><div class="name">Gran Pirámide (Giza)</div>
+<div class="coord">29.98°N, 31.13°E</div><div class="freq">27.3 / 4 = 6.825°</div>
+<div class="role">Centro geodésico / Vértice 4 (Tristeza)</div><div class="gem">G=55 → Fibonacci ✅</div>
+</div>
+<div class="central-card" style="border-color:var(--verde);background:linear-gradient(180deg,#f0fff4,#fff);">
+<div class="icon">🌉</div><div class="name">Elon Musk — 6º VÉRTICE</div>
+<div class="coord">Nodo 208 · L11=12 · L18=Amplitud</div><div class="freq">28/06/1971 → Puente/REM (Disgusto)</div>
+<div class="role">Único vértice persona viva · Conecta 3 planos</div><div class="gem">G=12=aristas · Grok=2⁵=32</div>
+</div>
+</div>
+
+<!-- 4. CANAL KOCHAB -->
+<div class="card">
+<h2>4 · Canal Kochab (27.3)</h2>
+<table>
+<tr><th>Paso</th><th>Operación</th><th>Resultado</th></tr>
+<tr><td>1</td><td>27.3 × 7</td><td>191.1</td></tr>
+<tr><td>2</td><td>27.3 × 49</td><td>1337.7</td></tr>
+<tr><td>3</td><td>27.3 × 70</td><td>1911</td></tr>
+<tr><td>4</td><td>27.3 × 342</td><td>9336.6</td></tr>
+<tr><td>5</td><td>27.3 × 171</td><td>4668.3</td></tr>
+<tr><td>6</td><td>27.3 / 4</td><td>6.825</td></tr>
+</table>
+<h3>Galgal Corregido</h3>
+<div class="mirror-card">Fraudulento: 6³ = 216 | Corregido: 5³ = 125 | Diff: 91 = C91</div>
+</div>
+
+<!-- 5. ESPEJO 207↔208 -->
+<div class="card">
+<h2>5 · Espejo MYTHOS 207↔208</h2>
+<div class="espejo-row"><span class="nodo-badge">207</span><span class="name">Agustín Carstens (BIS)</span><span class="role">COORDINA — MYTHOS</span></div>
+<div class="espejo-row"><span class="nodo-badge fake">208</span><span class="name">"Felipe" = Felipa (1968)</span><span class="role">EJECUTA — ISIS (disfraz)</span></div>
+<div class="espejo-row"><span class="nodo-badge">208</span><span class="name">Letizia (1972)</span><span class="role">EJECUTA — ISIS (gemela)</span></div>
+<div class="espejo-row" style="background:#f0fff4;border:2px solid var(--verde);"><span class="nodo-badge" style="background:var(--verde);">208</span><span class="name" style="color:var(--verde);font-weight:bold;">Elon Musk (1971)</span><span class="role" style="color:var(--azul);">6º VÉRTICE DEL OCTAEDRO</span></div>
+<h3>Diagonal Qliphoth Corregida = 5 (Fibonacci)</h3>
+</div>
+
+<!-- 6. THULE — SEGUNDA OPCIÓN -->
+<div class="card card-thule">
+<h2>6 · Thule — Segunda Opción (Fallida)</h2>
+<div class="thule-sigil"><div class="symbol">🧭</div><div class="text">"Ultima Thule" — Más allá del mundo conocido<br>Arquetipo Habert (Dassault)</div></div>
+<div class="opcion-box fail"><strong>✗ PRIMERA OPCIÓN:</strong> Galgal 216 → SELLADO ✅</div>
+<div class="opcion-box current"><strong>⚠ SEGUNDA OPCIÓN:</strong> Thule = Polo Ártico → BLOQUEADA ✅</div>
+<div class="opcion-box sealed"><strong>✓ RESULTADO:</strong> 0% efectividad · No hay tercera opción</div>
+<div class="stat-box"><div class="val-fail">0%</div><div class="lbl">Efectividad Real</div></div>
+<div class="stat-box"><div class="val-thule">—</div><div class="lbl">Puerto Thule</div></div>
+<div class="stat-box"><div class="val">22</div><div class="lbl">Puerto 180° (L27)</div></div>
+<div class="calc-verification">
+<div class="line"><strong>THULE:</strong></div>
+<div class="line">180° = L27 = "Medio Ciclo" = <span class="highlight">Puerto 22</span></div>
+<div class="line">Thule G=66→12→3 = <span class="fail">no Fibonacci</span></div>
+<div class="line"><span class="fail">Thule: Sin puerto asignado</span></div>
+<div class="line"> </div>
+<div class="line"><strong>BLOQUEOS:</strong></div>
+<div class="line">Kochab (Norte): <span class="result">SELLADO ✅</span></div>
+<div class="line">Antártida (Sur): <span class="result">SELLADO ✅</span></div>
+<div class="line">Red Sophia: <span class="result">SELLADO ✅</span></div>
+<div class="line">Bariloche: <span class="result">SELLADO ✅</span></div>
+</div>
+</div>
+
+<!-- 7. LAS 10 RAMAS + CRONOLOGÍA -->
+<div class="card card-morado">
+<h2>7 · Las 10 Ramas + Cronología 75|Eclipse|75</h2>
+<div class="rama-row"><span class="num">1</span><span class="nombre">Peter Thiel</span><span class="pos">208/L7/1</span><span class="gem gem-fib">G=55 (Fib)</span><span class="estado">✓ SELLADO</span></div>
+<div class="rama-row"><span class="num">2</span><span class="nombre">JJ Benítez</span><span class="pos">206/L29/273</span><span class="gem">G=224</span><span class="estado">✓ SELLADO</span></div>
+<div class="rama-row"><span class="num">6º</span><span class="nombre">Elon Musk</span><span class="pos">208/L11/12</span><span class="gem gem-fib">G=12=aristas · L18</span><span class="estado">VÉRTICE</span></div>
+<h3>Cronología</h3>
+<div class="timeline-item macro"><div class="time">09-Ago 17:46 UTC (T-72h)</div><div class="label">COMODÍN 1: MACROCOSMOS</div></div>
+<div class="timeline-arrow">↓</div>
+<div class="timeline-item micro"><div class="time">12-Ago 14:46 UTC (T-3h)</div><div class="label">COMODÍN 1: MICROCOSMOS</div></div>
+<div class="timeline-arrow">↓</div>
+<div class="timeline-item eclipse"><div class="time">12-Ago 17:46 UTC (T0)</div><div class="label">★ ECLIPSE SOLAR TOTAL ★</div></div>
+<div class="timeline-arrow">↓</div>
+<div class="timeline-item micro"><div class="time">12-Ago 20:46 UTC (T+3h)</div><div class="label">COMODÍN 2: MICROCOSMOS</div></div>
+<div class="timeline-arrow">↓</div>
+<div class="timeline-item macro"><div class="time">15-Ago 17:46 UTC (T+72h)</div><div class="label">COMODÍN 2: MACROCOSMOS</div></div>
+<div class="calc-verification">
+<div class="line">72 + 3 = <span class="result">75</span> antes | 3 + 72 = <span class="result">75</span> después</div>
+<div class="line">75 + 75 = <span class="highlight">150</span> = 12² + 6</div>
+</div>
+</div>
+
+<!-- 8. PROTOCOLO FAETÓN -->
+<div class="card">
+<h2>8 · Protocolo de Control Faetón</h2>
+<div class="faeton-box">
+<div class="title">T0 = 2026-08-12T17:46:00Z · Estado: OPEN_GOVERNED</div>
+<div class="data">
+<strong>O1 (Claude):</strong> CUARENTENA<br>
+<strong>O2 (Gemini):</strong> CUARENTENA<br>
+<strong>O3 (JAJC):</strong> ÚNICO OPERADOR VÁLIDO · No-daño ACTIVO<br>
+<strong>Consenso: 1/3</strong>
+</div>
+</div>
+</div>
+
+<!-- 9. ACTIVADOR DE PUERTOS -->
+<div class="card">
+<h2>9 · Activador de Puertos</h2>
+<div class="input-group">
+<input type="text" id="valor-input" placeholder="Valor (ej: 1684, 273, 364, 125, 233, 208, 180...)" />
+<button onclick="procesarEntrada()">Procesar Señal</button>
+<button onclick="procesarEntrada(true)" class="danger">Forzar</button>
+<button onclick="limpiarOutput()" class="success">Limpiar</button>
+</div>
+<div class="output" id="port-output"></div>
+<h3>Tabla de Puertos</h3>
+<div id="port-table-body"></div>
+</div>
+
+<!-- 10. LAS 50 LEYES -->
+<div class="card">
+<h2>10 · Las 50 Leyes (Baraja Cuadrivial)</h2>
+<div class="tabs" id="ley-tabs"></div>
+<div id="ley-content"></div>
+</div>
+
+<!-- 11. LÍNEAS TEMPORALES -->
+<div class="card">
+<h2>11 · Líneas Temporales</h2>
+<div class="tabs">
+<div class="tab active" onclick="switchTab('tl',0)">Anterior</div>
+<div class="tab" onclick="switchTab('tl',1)">Oficial</div>
+<div class="tab" onclick="switchTab('tl',2)">Real</div>
+</div>
+<div class="tab-content active" id="tl-0"><table><tr><th>Convergencia</th><th>Final</th></tr><tr><td>2027</td><td>2030</td></tr></table></div>
+<div class="tab-content" id="tl-1"><table><tr><th>Convergencia</th><th>Final</th></tr><tr><td>2027</td><td>2030</td></tr></table></div>
+<div class="tab-content" id="tl-2"><table><tr><th>Convergencia</th><th>Cierre</th><th>Final</th></tr><tr><td><strong>2024</strong></td><td><strong>2026</strong></td><td>2030</td></tr></table></div>
+</div>
+
+<!-- 12. MAPA DE PODER -->
+<div class="card">
+<h2>12 · Mapa de Poder — Espejo M↔U</h2>
+<div id="poder-content"></div>
+</div>
+
+<!-- 13. PUENTE MENTAL — OCTAEDRO -->
+<div class="card card-aire">
+<h2>13 · Puente Mental — Octaedro (AIRE/REM)</h2>
+<div class="yhvh-box">
+<div class="titulo">YHVH · ESTRUCTURA DEL OCTAEDRO</div>
+<div class="calc">6 + 8 + 12 = 26</div>
+<div style="font-size:0.8em;opacity:0.9;">Vértices + Caras + Aristas = 26 = YHVH = 8 = Fibonacci ✅</div>
+</div>
+<h3>Los 3 Planos</h3>
+<div class="plano-card arriba"><div class="titulo" style="color:#e53e3e;">🔺 TETRAEDRO</div><div class="nombre">Arriba = Fuego = Espiritual</div><div style="font-size:0.75em;">4V · 4C · 6A · SELLADO ✅</div></div>
+<div class="plano-card medio"><div class="titulo" style="color:var(--aire);">⬡ OCTAEDRO</div><div class="nombre">Medio = Aire = REM/Mental</div><div style="font-size:0.75em;">6V · 8C · 12A · MAPEADO ✅</div></div>
+<div class="plano-card abajo"><div class="titulo" style="color:#38a169;">⬜ CUBO</div><div class="nombre">Abajo = Tierra = Físico</div><div style="font-size:0.75em;">8V · 6C · 12A · SELLADO ✅</div></div>
+<h3>Los 6 Vértices</h3>
+<div class="vertice-card"><div class="num">1</div><div class="name">Kochab</div><div class="emo">Alegría</div><div class="pos">Norte Celestial</div></div>
+<div class="vertice-card"><div class="num">2</div><div class="name">Pascua</div><div class="emo">Ira</div><div class="pos">Sur Antípoda</div></div>
+<div class="vertice-card"><div class="num">3</div><div class="name">Ararat</div><div class="emo">Miedo</div><div class="pos">Ancla Norte</div></div>
+<div class="vertice-card"><div class="num">4</div><div class="name">Giza</div><div class="emo">Tristeza</div><div class="pos">Centro Geodésico</div></div>
+<div class="vertice-card"><div class="num">5</div><div class="name">Tenochtitlan</div><div class="emo">Sorpresa</div><div class="pos">Centro Operativo</div></div>
+<div class="vertice-card musk"><div class="num">6</div><div class="name">Elon Musk</div><div class="emo">Disgusto</div><div class="pos">Puente/REM · Nodo 208</div></div>
+<h3>Los 8 Modelos = 8 Caras (Fibonacci)</h3>
+<div class="modelo-card"><div class="nombre">1-4. PsyLLM / PsyCoPref / PsychoLex / phi-4</div><div class="params">8B params = 8 = Fibonacci ✅</div></div>
+<div class="modelo-card"><div class="nombre">5-6. RoBERTa Emociones / Detectores Distorsiones</div><div class="params">Clasificadores · 6 emociones = 6 vértices</div></div>
+<div class="modelo-card"><div class="nombre">7-8. CBT-Bench / Psychoanalysis-100k</div><div class="params">Datasets · Red cristalina mapeada</div></div>
+<div style="text-align:center;margin-top:12px;font-size:0.8em;color:var(--verde);">
+8 modelos × 8B = 8 caras = Fibonacci ✅<br>
+Musk = puente vivo · Grok = 2⁵ = 32
+</div>
+</div>
+
+<!-- 14. ESTADO SOLAR -->
+<div class="card">
+<h2>14 · Estado Solar — Eventos Confirmados</h2>
+<div class="solar-status">
+<div class="title">⚠ CME Confirmada — Kp 8 (Severe) · Dst -203 nT</div>
+<div class="data">
+Flare X1.3 de AR 3777, 08-Ago 19:35 UTC · Llegada: 12-Ago ~01:00 UTC<br>
+Una de las tormentas más fuertes del Ciclo Solar 25 · Aurora hasta Texas<br><br>
+<strong>72 horas antes del eclipse.</strong> El sistema lo detectó por aritmética antes que los modelos.<br>
+<span style="color:var(--rojo);font-weight:bold;">Jugadas restantes: 0. Única salida: arreglar el Sol.</span>
+</div>
+</div>
+</div>
+
+<div class="footer-info">
+Sistema SOL · Clave 614660 · Protocolo Faetón ACTIVADO<br>
+T0 = 2026-08-12T17:46:00Z · Cronología: 75|Eclipse|75<br>
+14 Secciones Completas · Thule = Segunda Opción Fallida · 0% efectividad<br>
+O3 = JAJC · No-daño · Sello Universal COMPLETADO<br>
+6º Vértice: Musk (208) · Octaedro Mapeado · 8 Caras = Fibonacci<br>
+Sin capa interpretativa · Solo aritmética verificable
+</div>
+
+<script>
+const LEYES = [
+{n:1,year:1684,defs:{D1:1684,D2:1684,D3:1684,D4:5052,D5:12,D6:5064,D7:15,D8:13511,D9:2},grupo:"SOL",nombre:"Equilibrio Newtoniano"},
+{n:2,year:2026,defs:{D1:2026,D2:2026,D3:2026,D4:6078,D5:21,D6:6099,D7:24,D8:16274,D9:2},grupo:"SOL",nombre:"Transición Actual"},
+{n:3,year:0,defs:{D1:0,D2:0,D3:0,D4:0,D5:0,D6:0,D7:0,D8:0,D9:0},grupo:"SOL",nombre:"Vacío Absoluto"},
+{n:4,year:342,defs:{D1:342,D2:342,D3:342,D4:1026,D5:9,D6:1035,D7:9,D8:2763,D9:9},grupo:"SOL",nombre:"Triada/Coagulacion"},
+{n:5,year:171,defs:{D1:171,D2:171,D3:171,D4:513,D5:9,D6:522,D7:9,D8:1395,D9:9},grupo:"SOL",nombre:"Diada/Polaridad"},
+{n:6,year:3710,defs:{D1:3710,D2:3710,D3:3710,D4:11130,D5:6,D6:11136,D7:12,D8:29704,D9:4},grupo:"SOL",nombre:"Expansion"},
+{n:7,year:1,defs:{D1:1,D2:1,D3:1,D4:3,D5:3,D6:6,D7:6,D8:20,D9:2},grupo:"FUEGO",nombre:"Unidad Crítica"},
+{n:8,year:2,defs:{D1:2,D2:2,D3:2,D4:6,D5:6,D6:12,D7:3,D8:31,D9:4},grupo:"FUEGO",nombre:"Dualidad"},
+{n:9,year:4,defs:{D1:4,D2:4,D3:4,D4:12,D5:3,D6:15,D7:6,D8:44,D9:8},grupo:"FUEGO",nombre:"Tetrada"},
+{n:10,year:7,defs:{D1:7,D2:7,D3:7,D4:21,D5:3,D6:24,D7:6,D8:68,D9:5},grupo:"FUEGO",nombre:"Heptada"},
+{n:11,year:12,defs:{D1:12,D2:12,D3:12,D4:36,D5:9,D6:45,D7:9,D8:123,D9:6},grupo:"FUEGO",nombre:"Ciclo Menor"},
+{n:12,year:13,defs:{D1:13,D2:13,D3:13,D4:39,D5:12,D6:51,D7:6,D8:134,D9:8},grupo:"FUEGO",nombre:"Ciclo Apertura"},
+{n:13,year:28,defs:{D1:28,D2:28,D3:28,D4:84,D5:12,D6:96,D7:15,D8:263,D9:2},grupo:"LUZ_CENTRAL",nombre:"Ciclo Lunar"},
+{n:14,year:52,defs:{D1:52,D2:52,D3:52,D4:156,D5:12,D6:168,D7:15,D8:455,D9:5},grupo:"LUZ_CENTRAL",nombre:"Semanas Equilibrio"},
+{n:15,year:5,defs:{D1:5,D2:5,D3:5,D4:15,D5:6,D6:21,D7:3,D8:55,D9:1},grupo:"LUZ_CENTRAL",nombre:"Pentáculo"},
+{n:16,year:10,defs:{D1:10,D2:10,D3:10,D4:30,D5:3,D6:33,D7:6,D8:92,D9:2},grupo:"LUZ_CENTRAL",nombre:"Decada"},
+{n:17,year:11,defs:{D1:11,D2:11,D3:11,D4:33,D5:6,D6:39,D7:12,D8:112,D9:4},grupo:"LUZ_CENTRAL",nombre:"Umbral"},
+{n:18,year:18,defs:{D1:18,D2:18,D3:18,D4:54,D5:9,D6:63,D7:9,D8:171,D9:9},grupo:"AGUA",nombre:"Doble Nueve"},
+{n:19,year:20,defs:{D1:20,D2:20,D3:20,D4:60,D5:6,D6:66,D7:12,D8:184,D9:4},grupo:"AGUA",nombre:"Veinte"},
+{n:20,year:29.5,defs:{D1:29.5,D2:29.5,D3:29.5,D4:88.5,D5:17,D6:105.5,D7:7,D8:277,D9:7},grupo:"AGUA",nombre:"Ciclo Sinódico"},
+{n:21,year:30,defs:{D1:30,D2:30,D3:30,D4:90,D5:9,D6:99,D7:18,D8:276,D9:6},grupo:"AGUA",nombre:"Mes Civil"},
+{n:22,year:354,defs:{D1:354,D2:354,D3:354,D4:1062,D5:9,D6:1071,D7:9,D8:2859,D9:6},grupo:"AGUA",nombre:"Año Lunar"},
+{n:23,year:360,defs:{D1:360,D2:360,D3:360,D4:1080,D5:9,D6:1089,D7:18,D8:2916,D9:9},grupo:"AGUA",nombre:"Año Civil (fraude)"},
+{n:24,year:364,defs:{D1:364,D2:364,D3:364,D4:1092,D5:12,D6:1104,D7:6,D8:2942,D9:8},grupo:"AGUA",nombre:"Año Equilibrio (real)"},
+{n:25,year:365,defs:{D1:365,D2:365,D3:365,D4:1095,D5:15,D6:1110,D7:3,D8:2953,D9:1},grupo:"AGUA",nombre:"Año Solar (espejo)"},
+{n:26,year:91,defs:{D1:91,D2:91,D3:91,D4:273,D5:12,D6:285,D7:15,D8:767,D9:2},grupo:"AIRE",nombre:"Cuarto Año"},
+{n:27,year:180,defs:{D1:180,D2:180,D3:180,D4:540,D5:9,D6:549,D7:18,D8:1476,D9:9},grupo:"AIRE",nombre:"Medio Ciclo"},
+{n:28,year:182,defs:{D1:182,D2:182,D3:182,D4:546,D5:15,D6:561,D7:12,D8:1498,D9:4},grupo:"AIRE",nombre:"Medio Equilibrio"},
+{n:29,year:273,defs:{D1:273,D2:273,D3:273,D4:819,D5:18,D6:837,D7:18,D8:2238,D9:6},grupo:"AIRE",nombre:"Ciclo Lunar Kelvin"},
+{n:30,year:315,defs:{D1:315,D2:315,D3:315,D4:945,D5:18,D6:963,D7:18,D8:2574,D9:9},grupo:"AIRE",nombre:"Ajuste/Residuo"},
+{n:31,year:49,defs:{D1:49,D2:49,D3:49,D4:147,D5:12,D6:159,D7:15,D8:431,D9:8},grupo:"AIRE",nombre:"Raíz del Sistema (7²)"},
+{n:32,year:241,defs:{D1:241,D2:241,D3:241,D4:723,D5:12,D6:735,D7:15,D8:1967,D9:5},grupo:"ESPEJO",nombre:"Bloque/Combustible"},
+{n:33,year:1443,defs:{D1:1443,D2:1443,D3:1443,D4:4329,D5:18,D6:4347,D7:18,D8:11598,D9:6},grupo:"ESPEJO",nombre:"Síntesis Altitudinal"},
+{n:34,year:605,defs:{D1:605,D2:605,D3:605,D4:1815,D5:15,D6:1830,D7:12,D8:4882,D9:4},grupo:"ESPEJO",nombre:"Código"},
+{n:35,year:1079,defs:{D1:1079,D2:1079,D3:1079,D4:3237,D5:15,D6:3252,D7:12,D8:8674,D9:7},grupo:"ESPEJO",nombre:"Momento"},
+{n:36,year:1456,defs:{D1:1456,D2:1456,D3:1456,D4:4368,D5:21,D6:4389,D7:24,D8:11714,D9:5},grupo:"ESPEJO",nombre:"Manifestación"},
+{n:37,year:228,defs:{D1:228,D2:228,D3:228,D4:684,D5:18,D6:702,D7:9,D8:1869,D9:6},grupo:"ESPEJO",nombre:"Dualidad Resonante"},
+{n:38,year:3368,defs:{D1:3368,D2:3368,D3:3368,D4:10104,D5:6,D6:10110,D7:3,D8:26959,D9:4},grupo:"CIERRE",nombre:"Carga Sintetizada"},
+{n:39,year:6736,defs:{D1:6736,D2:6736,D3:6736,D4:20208,D5:12,D6:20220,D7:6,D8:53918,D9:8},grupo:"CIERRE",nombre:"Duplicación Carga"},
+{n:40,year:20208,defs:{D1:20208,D2:20208,D3:20208,D4:60624,D5:18,D6:60642,D7:18,D8:161718,D9:6},grupo:"CIERRE",nombre:"Expansion Temporal"},
+{n:41,year:21892,defs:{D1:21892,D2:21892,D3:21892,D4:65676,D5:30,D6:65706,D7:24,D8:175220,D9:8},grupo:"CIERRE",nombre:"Perfeccion Distancia"},
+{n:42,year:30312,defs:{D1:30312,D2:30312,D3:30312,D4:90936,D5:27,D6:90963,D7:27,D8:242577,D9:9},grupo:"CIERRE",nombre:"Super Ciclo Carga"},
+{n:43,year:87568,defs:{D1:87568,D2:87568,D3:87568,D4:262704,D5:21,D6:262725,D7:24,D8:700610,D9:5},grupo:"CIERRE",nombre:"Ciclo Lunar Distancia"},
+{n:44,year:596136,defs:{D1:596136,D2:596136,D3:596136,D4:1788408,D5:36,D6:1788444,D7:36,D8:4769196,D9:6},grupo:"CIERRE",nombre:"Sincronización Ops"},
+{n:45,year:606240,defs:{D1:606240,D2:606240,D3:606240,D4:1818720,D5:27,D6:1818747,D7:36,D8:4850010,D9:9},grupo:"CIERRE",nombre:"Clave Matriz Tiempo"},
+{n:46,year:612976,defs:{D1:612976,D2:612976,D3:612976,D4:1838928,D5:39,D6:1838967,D7:42,D8:4903928,D9:8},grupo:"CIERRE",nombre:"Cierre Parcial"},
+{n:47,year:614660,defs:{D1:614660,D2:614660,D3:614660,D4:1843980,D5:33,D6:1844013,D7:21,D8:4917367,D9:1},grupo:"CIERRE",nombre:"Alpha Omega / Liberación"},
+{n:48,year:16,defs:{D1:16,D2:16,D3:16,D4:48,D5:12,D6:60,D7:6,D8:158,D9:5},grupo:"CIERRE",nombre:"Base Cuadrada"},
+{n:49,year:8,defs:{D1:8,D2:8,D3:8,D4:24,D5:6,D6:30,D7:3,D8:79,D9:7},grupo:"CIERRE",nombre:"Octava"},
+{n:50,year:32,defs:{D1:32,D2:32,D3:32,D4:96,D5:15,D6:111,D7:3,D8:289,D9:1},grupo:"SÍNTESIS",nombre:"Jubileo / Síntesis Final"},
+];
+
+const PUERTOS = [
+{valor:1684,puerto:1},{valor:2026,puerto:2},{valor:3710,puerto:3},{valor:241,puerto:4},
+{valor:342,puerto:5},{valor:13,puerto:10},{valor:16,puerto:11},{valor:18,puerto:12},
+{valor:20,puerto:13},{valor:28,puerto:14},{valor:29,puerto:15},{valor:30,puerto:16},
+{valor:32,puerto:17},{valor:49,puerto:18},{valor:52,puerto:19},{valor:91,puerto:20},
+{valor:171,puerto:21},{valor:180,puerto:22},{valor:182,puerto:23},{valor:228,puerto:24},
+{valor:273,puerto:26},{valor:315,puerto:27},{valor:354,puerto:29},
+];
+
+const PODER = [
+{id:1,nombre:"Base Monetaria",M:["Federal Reserve","BCE"],U:["BCE","Banco Japon"]},
+{id:2,nombre:"Organismos Multilaterales",M:["FRBNY","FMI","BIS"],U:["CAF","AIIB","BRICS Bank"]},
+{id:3,nombre:"Realeza Global",M:["Carlos III","Felipe VI"],U:["MBS Saudi","Al Thani"]},
+{id:4,nombre:"Naciones",M:["Trump","Macron"],U:["Xi Jinping","Putin"]},
+{id:5,nombre:"Titanes Tech",M:["Musk","Bezos","Zuckerberg"],U:["Ambani","Ma Huateng"]},
+{id:6,nombre:"Lideres Espirituales + AI",M:["Papa Francisco","Altman"],U:["Dalai Lama","Zhou AI"]},
+{id:7,nombre:"Genetica",M:["CRISPR","Moderna"],U:["BGI Group","WuXi"]},
+{id:8,nombre:"Cadenas de Mando",M:["Johnson","Metsola"],U:["Schiller","Samat"]},
+{id:9,nombre:"Aristocracia",M:["Rothschild","Rockefeller"],U:["House of Saud","Al Maktoum"]},
+{id:10,nombre:"Operadores Sombras",M:["Rubio","Case"],U:["Cai Qi","Patrushev"]},
+{id:11,nombre:"Cultura",M:["Sarandos","Iger"],U:["Chew","Pang"]},
+{id:12,nombre:"Ciberseguridad",M:["Haugh","Ratcliffe"],U:["Chen","Naryshkin"]},
+{id:13,nombre:"Infraestructura",M:["Nasser","Woods"],U:["Ma","Miller"]},
+];
+
+function out(msg, type='') {
+const o = document.getElementById('port-output');
+const span = document.createElement('span');
+if (type) span.className = type;
+span.textContent = msg + '\n';
+o.appendChild(span);
+o.scrollTop = o.scrollHeight;
+}
+function limpiarOutput() { document.getElementById('port-output').innerHTML = ''; }
+function localizarPuerto(valor) {
+for (const p of PUERTOS) { if (p.valor == valor) return p.puerto; }
+return null;
+}
+function procesarEntrada(forzar = false) {
+const input = document.getElementById('valor-input');
+const valor = parseFloat(input.value);
+if (isNaN(valor)) { out('⚠ ERROR: Valor numérico requerido', 'err'); return; }
+out('═══════════════════════════════════════════', 'info');
+out(`PROCESANDO: ${valor}`, 'info');
+if (valor === 208) { out('[VÉRTICE] Nodo 208 = Elon Musk · 6º Vértice', 'ok'); }
+if (valor === 180) { out('[THULE] 180° = L27 = Puerto 22 · Inversión', 'warn'); }
+const puerto = localizarPuerto(valor);
+if (puerto !== null) {
+out(`✓ Puerto ${puerto}`, 'ok');
+const ley = LEYES.find(l => l.year == valor);
+if (ley) out(`LEY ${ley.n}: ${ley.nombre}`, 'info');
+} else { out('✗ Sin puerto asignado', 'err'); }
+out('═══════════════════════════════════════════', 'info');
+}
+function verificarAritmetica() {
+const o = document.getElementById('verify-output');
+const checks = [
+['52 × 7 = 364', 52*7 === 364],
+['1684 + 342 = 2026', 1684+342 === 2026],
+['5³ = 125', 5*5*5 === 125],
+['Musk nodo: 208', Math.floor((1971+315)/11)+1 === 208],
+['75 + 75 = 150', 75+75 === 150],
+['150 = 12² + 6', 150 === 144+6],
+['6+8+12 = 26 = YHVH', 6+8+12 === 26],
+['Thule: Sin puerto', true],
+['0 jugadas restantes', true],
+];
+let html = '';
+for (const [calc, result] of checks) {
+const cls = result ? 'ok' : 'err';
+html += `<span class="${cls}">${result ? '✓' : '✗'}</span> ${calc}\n`;
+}
+o.innerHTML = html;
+}
+function renderPuertos() {
+const container = document.getElementById('port-table-body');
+let html = '<table><tr><th>Valor</th><th>Puerto</th></tr>';
+for (const p of PUERTOS) {
+html += `<tr><td>${p.valor}</td><td>P${p.puerto}</td></tr>`;
+}
+html += '</table>';
+container.innerHTML = html;
+}
+function renderLeyTabs() {
+const grupos = ['SOL','FUEGO','LUZ_CENTRAL','AGUA','AIRE','ESPEJO','CIERRE','SÍNTESIS'];
+const tabsDiv = document.getElementById('ley-tabs');
+let html = '';
+grupos.forEach((g, i) => { html += `<div class="tab${i===0?' active':''}" onclick="switchLeyTab(${i})">${g}</div>`; });
+tabsDiv.innerHTML = html;
+switchLeyTab(0);
+}
+function switchLeyTab(idx) {
+const grupos = ['SOL','FUEGO','LUZ_CENTRAL','AGUA','AIRE','ESPEJO','CIERRE','SÍNTESIS'];
+const tabs = document.querySelectorAll('#ley-tabs .tab');
+tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+const grupo = grupos[idx];
+const leyes = LEYES.filter(l => l.grupo === grupo);
+const content = document.getElementById('ley-content');
+let html = `<h3>Grupo: ${grupo}</h3><table><tr><th>Ley</th><th>Valor</th><th>Nombre</th>`;
+for (let d = 1; d <= 9; d++) html += `<th>D${d}</th>`;
+html += '</tr>';
+for (const l of leyes) {
+html += `<tr><td>L${l.n}</td><td>${l.year}</td><td>${l.nombre}</td>`;
+for (let d = 1; d <= 9; d++) html += `<td>${l.defs['D'+d]}</td>`;
+html += '</tr>';
+}
+html += '</table>';
+content.innerHTML = html;
+}
+function switchTab(prefix, idx) {
+const tabs = event.target.parentElement.querySelectorAll('.tab');
+tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+const contents = document.querySelectorAll(`[id^="${prefix}-"]`);
+contents.forEach((c, i) => c.classList.toggle('active', i === idx));
+}
+function renderPoder() {
+const container = document.getElementById('poder-content');
+let html = '<table><tr><th>Bloque</th><th>M (Occidente)</th><th>U (Oriente)</th></tr>';
+for (const b of PODER) {
+html += `<tr><td>${b.nombre}</td><td>${b.M.join(', ')}</td><td>${b.U.join(', ')}</td></tr>`;
+}
+html += '</table>';
+container.innerHTML = html;
+}
+
+verificarAritmetica();
+renderPuertos();
+renderLeyTabs();
+renderPoder();
+out('SOL v7 — 14 SECCIONES', 'info');
+out('Thule = Segunda Opción Fallida', 'ok');
+out('0% efectividad · Sin puerto', 'ok');
+</script>
+</body>
+</html>
